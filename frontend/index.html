@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DeceptIQ — Truth Detection System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- BACKGROUND GRID -->
+<div class="bg-grid"></div>
+<div class="bg-glow glow1"></div>
+<div class="bg-glow glow2"></div>
+<div class="bg-glow glow3"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-eye">
+        <div class="eye-outer"></div>
+        <div class="eye-inner"></div>
+        <div class="eye-pupil"></div>
+      </div>
+      <div class="logo-text">
+        <span class="logo-main">DECEPTIQ</span>
+        <span class="logo-sub">TRUTH DETECTION SYSTEM</span>
+      </div>
+    </div>
+    <div class="header-badge">EYES DON'T LIE
+</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ═══ HOME SCREEN ═══ -->
+  <section id="homeScreen" class="screen active">
+    <div class="home-hero">
+      <div class="hero-tag">AI-POWERED MICRO-EXPRESSION ANALYSIS</div>
+      <h1 class="hero-title">Can you hide<br/><span class="highlight">the truth?</span></h1>
+      <p class="hero-desc">Real-time facial analysis detects hidden emotions and inconsistencies using computer vision and behavioral pattern recognition.</p>
+
+      <div class="mode-cards">
+        <!-- LIVE WEBCAM -->
+        <div class="mode-card" id="liveCard" onclick="startLiveMode()">
+          <div class="card-glow"></div>
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              <circle cx="12" cy="12" r="7" stroke-dasharray="2 3"/>
+            </svg>
+          </div>
+          <div class="card-badge live-badge">● LIVE</div>
+          <h3>Live Webcam</h3>
+          <p>Real-time analysis as you speak. Get instant truth/deception indicators frame by frame.</p>
+          <div class="card-arrow">→</div>
+        </div>
+
+        <!-- UPLOAD VIDEO -->
+        <div class="mode-card" id="uploadCard" onclick="document.getElementById('videoFileInput').click()">
+          <div class="card-glow"></div>
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="card-badge">UPLOAD</div>
+          <h3>Video File</h3>
+          <p>Upload a recorded video for deep analysis with full emotion timeline and risk report.</p>
+          <div class="card-arrow">→</div>
+        </div>
+
+        <!-- DEMO -->
+        <div class="mode-card" id="demoCard" onclick="runDemo()">
+          <div class="card-glow"></div>
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+          </div>
+          <div class="card-badge demo-badge">DEMO</div>
+          <h3>Try Demo</h3>
+          <p>See how the system works with simulated data before using your own video.</p>
+          <div class="card-arrow">→</div>
+        </div>
+      </div>
+
+      <input type="file" id="videoFileInput" accept="video/*" hidden/>
+    </div>
+  </section>
+
+  <!-- ═══ LIVE WEBCAM SCREEN ═══ -->
+  <section id="liveScreen" class="screen">
+    <div class="live-layout">
+
+      <!-- LEFT: VIDEO FEED -->
+      <div class="live-left">
+        <div class="video-frame">
+          <div class="frame-corner tl"></div>
+          <div class="frame-corner tr"></div>
+          <div class="frame-corner bl"></div>
+          <div class="frame-corner br"></div>
+          <video id="webcamVideo" autoplay muted playsinline></video>
+          <canvas id="overlayCanvas"></canvas>
+          <div class="scan-line"></div>
+          <div class="video-status" id="videoStatus">
+            <span class="status-dot"></span>
+            <span id="statusText">INITIALIZING...</span>
+          </div>
+        </div>
+
+        <!-- VERDICT DISPLAY -->
+        <div class="verdict-box" id="verdictBox">
+          <div class="verdict-label">REAL-TIME VERDICT</div>
+          <div class="verdict-result" id="verdictResult">—</div>
+          <div class="verdict-confidence" id="verdictConfidence">Waiting for data...</div>
+        </div>
+
+        <div class="live-controls">
+          <button class="btn-start" id="startBtn" onclick="startWebcam()">
+            <span>▶ START ANALYSIS</span>
+          </button>
+          <button class="btn-stop hidden" id="stopBtn" onclick="stopWebcam()">
+            <span>⏹ STOP</span>
+          </button>
+          <button class="btn-back" onclick="goHome()">← BACK</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: LIVE METRICS -->
+      <div class="live-right">
+
+        <div class="metrics-header">
+          <span>LIVE METRICS</span>
+          <span class="recording-indicator" id="recordingIndicator">● REC</span>
+        </div>
+
+        <!-- EMOTION BARS -->
+        <div class="emotion-bars" id="emotionBars">
+          <div class="emotion-bar-item" data-emotion="neutral">
+            <span class="ebar-label">NEUTRAL</span>
+            <div class="ebar-track"><div class="ebar-fill" id="bar-neutral"></div></div>
+            <span class="ebar-val" id="val-neutral">0%</span>
+          </div>
+          <div class="emotion-bar-item" data-emotion="happy">
+            <span class="ebar-label">HAPPY</span>
+            <div class="ebar-track"><div class="ebar-fill" id="bar-happy"></div></div>
+            <span class="ebar-val" id="val-happy">0%</span>
+          </div>
+          <div class="emotion-bar-item" data-emotion="sad">
+            <span class="ebar-label">SAD</span>
+            <div class="ebar-track"><div class="ebar-fill" id="bar-sad"></div></div>
+            <span class="ebar-val" id="val-sad">0%</span>
+          </div>
+          <div class="emotion-bar-item" data-emotion="angry">
+            <span class="ebar-label">ANGRY</span>
+            <div class="ebar-track"><div class="ebar-fill" id="bar-angry"></div></div>
+            <span class="ebar-val" id="val-angry">0%</span>
+          </div>
+          <div class="emotion-bar-item" data-emotion="fear">
+            <span class="ebar-label">FEAR</span>
+            <div class="ebar-track"><div class="ebar-fill" id="bar-fear"></div></div>
+            <span class="ebar-val" id="val-fear">0%</span>
+          </div>
+          <div class="emotion-bar-item" data-emotion="disgust">
+            <span class="ebar-label">DISGUST</span>
+            <div class="ebar-track"><div class="ebar-fill" id="bar-disgust"></div></div>
+            <span class="ebar-val" id="val-disgust">0%</span>
+          </div>
+          <div class="emotion-bar-item" data-emotion="surprise">
+            <span class="ebar-label">SURPRISE</span>
+            <div class="ebar-track"><div class="ebar-fill" id="bar-surprise"></div></div>
+            <span class="ebar-val" id="val-surprise">0%</span>
+          </div>
+        </div>
+
+        <!-- RISK METER -->
+        <div class="live-risk-section">
+          <div class="live-risk-label">DECEPTION RISK</div>
+          <div class="risk-meter">
+            <div class="risk-fill" id="riskFill"></div>
+            <div class="risk-score-live" id="riskScoreLive">0</div>
+          </div>
+          <div class="risk-level-live" id="riskLevelLive">Collecting data...</div>
+        </div>
+
+        <!-- MINI LIVE CHART -->
+        <div class="live-chart-section">
+          <div class="live-chart-label">EMOTION SPIKE MONITOR</div>
+          <canvas id="liveChart" height="120"></canvas>
+        </div>
+
+        <!-- STATS -->
+        <div class="live-stats">
+          <div class="stat-item">
+            <span class="stat-val" id="framesCount">0</span>
+            <span class="stat-label">FRAMES</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val" id="spikesCount">0</span>
+            <span class="stat-label">SPIKES</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val" id="dominantEmotion">—</span>
+            <span class="stat-label">DOMINANT</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LOADING SCREEN ═══ -->
+  <section id="loadingScreen" class="screen">
+    <div class="loading-center">
+      <div class="loading-rings">
+        <div class="ring ring1"></div>
+        <div class="ring ring2"></div>
+        <div class="ring ring3"></div>
+        <div class="ring-icon">👁</div>
+      </div>
+      <h2 class="loading-title">ANALYZING</h2>
+      <div class="loading-steps">
+        <div class="lstep" id="lstep1">
+          <div class="lstep-dot"></div>
+          <span>Extracting video frames</span>
+        </div>
+        <div class="lstep" id="lstep2">
+          <div class="lstep-dot"></div>
+          <span>Detecting facial landmarks</span>
+        </div>
+        <div class="lstep" id="lstep3">
+          <div class="lstep-dot"></div>
+          <span>Mapping micro-expressions</span>
+        </div>
+        <div class="lstep" id="lstep4">
+          <div class="lstep-dot"></div>
+          <span>Calculating deception risk</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ RESULTS SCREEN ═══ -->
+  <section id="resultsScreen" class="screen">
+    <div class="results-layout">
+
+      <!-- TOP: VERDICT BANNER -->
+      <div class="verdict-banner" id="verdictBanner">
+        <div class="vb-left">
+          <div class="vb-score-label">DECEPTION RISK SCORE</div>
+          <div class="vb-score" id="vbScore">0</div>
+          <div class="vb-level" id="vbLevel">—</div>
+        </div>
+        <div class="vb-center">
+          <canvas id="resultGauge" width="220" height="130"></canvas>
+        </div>
+        <div class="vb-right">
+          <div class="vb-stat">
+            <span id="vbDuration">—</span>
+            <small>Duration</small>
+          </div>
+          <div class="vb-stat">
+            <span id="vbFrames">—</span>
+            <small>Frames</small>
+          </div>
+          <div class="vb-stat">
+            <span id="vbFps">—</span>
+            <small>FPS</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-disclaimer">
+        ⚠ Research indicator only — not a definitive lie detector. Emotional inconsistency ≠ guaranteed deception.
+      </div>
+
+      <!-- INDICATORS -->
+      <div class="results-section-title">DETECTED INDICATORS</div>
+      <div id="resultIndicators" class="result-indicators"></div>
+
+      <!-- CHARTS ROW -->
+      <div class="charts-row">
+        <div class="chart-box wide">
+          <div class="chart-box-title">📈 EMOTION TIMELINE</div>
+          <div class="chart-subtitle">Sudden spikes in fear/anger/disgust = potential deception signals</div>
+          <canvas id="resultTimeline"></canvas>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-title">🎭 DISTRIBUTION</div>
+          <canvas id="resultDistribution"></canvas>
+        </div>
+      </div>
+
+      <button class="btn-new-analysis" onclick="goHome()">← NEW ANALYSIS</button>
+
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
