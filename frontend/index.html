@@ -8,42 +8,40 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
     <header>
-        <h1>👁️ DeceptIQ <span class="version-badge">v2.0</span></h1>
-        <p>Real-time Emotion & Micro-Expression Analysis</p>
+        <h1>DeceptIQ <span class="version-badge">v2.1</span></h1>
+        <p>Real-time emotion analysis and deception-risk review for webcam and uploaded videos.</p>
     </header>
 
     <main class="dashboard">
-        
         <section class="left-column">
-            
             <div class="video-container">
                 <video id="video" autoplay muted playsinline></video>
                 <canvas id="overlay"></canvas>
+                <div id="cameraPlaceholder" class="camera-placeholder">Camera preview appears here after you start the webcam.</div>
             </div>
 
             <div class="panel">
                 <h2>Live Analysis</h2>
                 <div class="button-group">
-                    <button class="btn primary" onclick="startCamera()">Start Camera</button>
-                    <button class="btn secondary" onclick="stopCamera()">Stop</button>
+                    <button class="btn primary" type="button" onclick="startCamera()">Start Camera</button>
+                    <button class="btn secondary" type="button" onclick="stopCamera()">Stop</button>
                 </div>
+                <p id="liveStatus" class="status-text text-muted">Camera is idle.</p>
+            </div>
 
-                <hr>
-
-                <h2>Batch Video Analysis</h2>
-                <div class="upload-group">
-                    <input type="file" id="videoFile" accept="video/mp4,video/avi,video/mov,video/webm">
-                    <button class="btn success" id="uploadBtn" onclick="uploadVideo()">Analyze Video File</button>
-                    <p id="uploadStatus" class="hidden text-muted">Uploading and analyzing... this may take a moment.</p>
+            <div class="panel chart-panel">
+                <div class="panel-heading">
+                    <h2>Live Emotion Mix</h2>
+                    <span class="text-muted">Updates while the webcam is running</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="liveEmotionChart"></canvas>
                 </div>
             </div>
-            
         </section>
 
         <section class="right-column">
-            
             <div class="metrics-grid">
                 <div class="metric-card">
                     <span class="metric-label">Dominant Emotion</span>
@@ -59,25 +57,57 @@
                 </div>
             </div>
 
+            <div class="panel">
+                <h2>Batch Video Analysis</h2>
+                <div class="upload-group">
+                    <input type="file" id="videoFile" accept="video/mp4,video/avi,video/mov,video/webm,video/x-matroska,.mkv">
+                    <button class="btn success" id="uploadBtn" type="button" onclick="uploadVideo()">Analyze Video File</button>
+                    <p id="uploadStatus" class="status-text text-muted">Choose a file and start analysis.</p>
+                    <p id="uploadError" class="status-text error-text hidden"></p>
+                </div>
+            </div>
+
             <div id="videoResultsPanel" class="panel hidden">
                 <h2>Video Analysis Report</h2>
-                <div class="risk-display">
-                    <div id="riskScoreVal" class="huge-score">0</div>
-                    <div class="risk-text">
-                        <div id="riskLevelVal" class="risk-level">Level</div>
-                        <span class="text-muted">Overall Deception Risk</span>
+                <div class="metrics-grid report-grid">
+                    <div class="metric-card">
+                        <span class="metric-label">Risk Score</span>
+                        <strong id="riskScoreVal" class="metric-value">0</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Risk Level</span>
+                        <strong id="riskLevelVal" class="metric-value">-</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Main Emotion</span>
+                        <strong id="videoDominantVal" class="metric-value">-</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Faces Found</span>
+                        <strong id="videoFacesVal" class="metric-value">0</strong>
                     </div>
                 </div>
+
+                <div class="summary-strip">
+                    <span id="videoDurationVal">Duration: 0s</span>
+                    <span id="videoFramesVal">Samples: 0</span>
+                    <span id="videoPeakVal">Peak Score: 0</span>
+                </div>
+
                 <h3>Key Indicators</h3>
                 <ul id="indicatorsList"></ul>
             </div>
 
-            <div class="panel chart-container">
-                <canvas id="emotionChart"></canvas>
+            <div id="timelinePanel" class="panel chart-panel hidden">
+                <div class="panel-heading">
+                    <h2>Video Timeline</h2>
+                    <span class="text-muted">Negative emotion and deception score across the clip</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="videoTimelineChart"></canvas>
+                </div>
             </div>
-
         </section>
-
     </main>
 
     <script src="script.js"></script>

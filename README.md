@@ -1,29 +1,55 @@
-# DeceptIQ — Truth Detection System
+# DeceptIQ
 
-An AI-powered web application that analyzes facial micro-expressions
-to detect hidden emotions and calculate a Deception Risk Score in real-time.
+DeceptIQ is a browser-based facial-expression analysis project with:
 
-## Features
-- 🎥 Live webcam analysis with instant Truthful / Uncertain / Deceptive verdict
-- 📁 Video file upload with full emotion timeline report
-- 📊 Tracks 7 emotions — happy, sad, angry, fear, disgust, surprise, neutral
-- 🚩 Detects 3 deception indicators — volatility, micro-spikes, suppression
-- 📈 Interactive charts — emotion timeline and distribution
-- ⚡ Deception Risk Score from 0 to 100
+- live webcam emotion analysis
+- rolling deception scoring for live frames
+- uploaded video analysis with timeline charts and key indicators
 
-## Tech Stack
-- **Frontend:** HTML, CSS, JavaScript, Chart.js
-- **Backend:** Python, Flask, OpenCV
-- **Communication:** REST API
+## Project Structure
 
-## Run Locally
+- `backend/` - Flask API and OpenCV analysis logic
+- `frontend/` - static HTML, CSS, and JavaScript dashboard
+
+## Setup
+
+Create and activate a virtual environment, then install the Python dependencies:
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## Run The Backend
+
 ```bash
 cd backend
-venv\Scripts\activate
 python app.py
 ```
-Open `frontend/index.html` with Live Server.
 
-## Disclaimer
-Research-based indicator only — not a clinical lie detector.
-Emotional inconsistency ≠ guaranteed deception.
+The API starts on `http://127.0.0.1:5000`.
+
+## Open The Frontend
+
+Serve the `frontend/` folder with a local static server such as VS Code Live Server, then open:
+
+```text
+frontend/index.html
+```
+
+The frontend calls the Flask backend on port `5000`.
+
+## Supported Video Formats
+
+- `.mp4`
+- `.avi`
+- `.mov`
+- `.webm`
+- `.mkv`
+
+## Notes
+
+- The webcam flow uses rolling session history so the score reacts to changes over time instead of staying stuck at zero.
+- Uploaded videos are sampled across the clip to keep analysis responsive and to avoid missing later moments.
+- This is a heuristic research demo, not a forensic lie detector.
